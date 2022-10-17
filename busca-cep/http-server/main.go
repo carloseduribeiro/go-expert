@@ -28,42 +28,39 @@ func FetchCepHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	cep, err := fetchCep(cepParam)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello, world!"))
+	err = json.NewEncoder(w).Encode(cep)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
-func fetchCep(cep string) {
+func fetchCep(cep string) (*ViaCep, error) {
 	formatedUrl := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
 	req, err := http.Get(formatedUrl)
 	if err != nil {
 		_, err = fmt.Fprintf(os.Stderr, "http request error: %v\n", err)
-		if err != nil {
-			panic(err)
-		}
-		return
+		return nil, err
 	}
 	defer req.Body.Close()
 	resp, err := io.ReadAll(req.Body)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading response: %v\n", err)
-		return
+		return nil, err
 	}
 	var data ViaCep
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error parsing response: %v\n", err)
-		return
+		return nil, err
 	}
-	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-	_, err = file.WriteString(fmt.Sprintf("Cep: %s\tLocalidade: %s\n", data.Cep, data.Localidade))
-	if err != nil {
-		panic(err)
-	}
+	return &data, nil
 }
 
 type ViaCep struct {
