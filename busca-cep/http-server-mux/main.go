@@ -6,13 +6,41 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sync"
 )
 
 func main() {
-	http.HandleFunc("/", FetchCepHandler)
-	err := http.ListenAndServe(":8080", nil)
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+	var err error
+	go func() {
+		cepMux := http.NewServeMux()
+		cepMux.HandleFunc("/", FetchCepHandler)
+		err = http.ListenAndServe(":8080", cepMux)
+		if err != nil {
+			panic(err)
+		}
+	}()
+	go func() {
+		blogMux := http.NewServeMux()
+		blogMux.Handle("/blog", Blog{title: "My blog"})
+		err = http.ListenAndServe(":8081", blogMux)
+		if err != nil {
+			panic(err)
+		}
+	}()
+	wg.Wait()
+}
+
+type Blog struct {
+	title string
+}
+
+func (b Blog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	_, err := w.Write([]byte(b.title))
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
