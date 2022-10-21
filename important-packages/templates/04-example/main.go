@@ -14,6 +14,7 @@ type Course struct {
 type CoursesList []Course
 
 func main() {
+
 	http.HandleFunc("/", Handler)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
