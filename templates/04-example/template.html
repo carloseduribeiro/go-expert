@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Courses Template</title>
 </head>
 <body>
 <h1>Courses</h1>
@@ -18,10 +18,12 @@
     </thead>
     <tbody>
     {{ range. }}
+    {{ if eq .Duration 40 }}
     <tr>
         <td>{{ .Name }}</td>
         <td>{{ .Duration }}</td>
     </tr>
+    {{ end }}
     {{ end }}
     </tbody>
 </table>
