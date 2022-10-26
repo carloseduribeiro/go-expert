@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:10.9
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_DATABASE=goexpert
+      - MARIADB_PASSWORD=root
+    volumes:
+      - "./db.sql:/docker-entrypoint-initdb.d/db.sql"
+    ports:
+      - "3306:3306"
+
+  adminer:
+    image: adminer:4
+    restart: always
+    environment:
+      - ADMINER_DESIGN=dracula
+    ports:
+      - "8080:8080"
