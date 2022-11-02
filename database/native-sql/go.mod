@@ -1,4 +1,4 @@
-module github.com/carloseduribeiro/go-expert/database/1
+module github.com/carloseduribeiro/go-expert/database/native-sql
 
 go 1.19
 
